@@ -1,6 +1,8 @@
 *.mkfc
 *.backup
 testing/*
+exec2
 exec2.go
 Makefile
+
 
