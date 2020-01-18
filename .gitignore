@@ -1,5 +1,6 @@
 *.mkfc
 *.backup
+bin/*
 testing/*
 gomakecb
 exec2
