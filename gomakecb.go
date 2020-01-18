@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"syscall"
 	"time"
+	"github.com/mattn/go-shellwords"
 )
 
 // K/V list of GOOS/GOARCH
@@ -153,7 +154,13 @@ func main() {
 		for c, v := range archos {
 			var cmd_args string
 			if *p_flag != "" {
-				cmd_args = fmt.Sprintf("%s %s GOARCH=%s GOOS=%s %s", *bm_flag, cmd_params, v.Arch, v.Os, *p_flag)
+				// Add regexp for cases when used variables
+				rg_goos, _ := regexp.Compile(`.GOOS`)
+				rg_goarch, _ := regexp.Compile(`.GOARCH`)
+				rep_goos := rg_goos.ReplaceAll([]byte(*p_flag), []byte(v.Os))
+				rep_goarch := rg_goarch.ReplaceAll(rep_goos, []byte(v.Arch))
+				prs_args := rep_goarch
+				cmd_args = fmt.Sprintf("%s %s GOARCH=%s GOOS=%s %s", *bm_flag, cmd_params, v.Arch, v.Os, prs_args)
 			} else {
 				cmd_args = fmt.Sprintf("%s %s GOARCH=%s GOOS=%s", *bm_flag, cmd_params, v.Arch, v.Os)
 			}
@@ -256,8 +263,10 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cmd.Timeout)
 	defer cancel()
 	var eco Exec_Command_Output
-	args := strings.Split(cmd.Args, " ")
-	envs := strings.Split(cmd.Env, " ")
+	args, _ := shellwords.Parse(cmd.Args)
+	envs, _ := shellwords.Parse(cmd.Env)
+	// args := strings.Split(cmd.Args, " ")
+	// envs := strings.Split(cmd.Env, " ")
 	_ = envs
 	comm := exec.CommandContext(ctx, cmd.Cmd, args...)
 	env := os.Environ()
