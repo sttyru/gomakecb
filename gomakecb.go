@@ -1,8 +1,9 @@
+// +build linux windows
+// +build ignore
+
 package main
 
 import (
-	// "bytes"
-	// "bufio"
 	"context"
 	"errors"
 	"flag"
@@ -14,44 +15,53 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	"syscall"
+	// "syscall"
 	"time"
 )
 
 // K/V list of GOOS/GOARCH
 var os_archs = []string{
-	"darwin/386",
-	"darwin/amd64",
-	"dragonfly/amd64",
-	"freebsd/386",
-	"freebsd/amd64",
-	"freebsd/arm",
-	"linux/386",
-	"linux/amd64",
-	"linux/arm",
-	"linux/arm64",
-	"linux/ppc64",
-	"linux/ppc64le",
-	"linux/mips",
-	"linux/mipsle",
-	"linux/mips64",
-	"linux/mips64le",
-	"linux/s390x",
-	"nacl/386",
-	"nacl/amd64p32",
-	"nacl/arm",
-	"netbsd/386",
-	"netbsd/amd64",
-	"netbsd/arm",
-	"openbsd/386",
-	"openbsd/amd64",
-	"openbsd/arm",
-	"plan9/386",
-	"plan9/amd64",
-	"plan9/arm",
-	"solaris/amd64",
-	"windows/386",
-	"windows/amd64",
+    "aix/ppc64",
+    "android/386",
+    "android/amd64",
+    "android/arm",
+    "android/arm64",
+    "darwin/386",
+    "darwin/amd64",
+    "darwin/arm",
+    "darwin/arm64",
+    "dragonfly/amd64",
+    "freebsd/386",
+    "freebsd/amd64",
+    "freebsd/arm",
+    "js/wasm",
+    "linux/386",
+    "linux/amd64",
+    "linux/arm",
+    "linux/arm64",
+    "linux/mips",
+    "linux/mips64",
+    "linux/mips64le",
+    "linux/mipsle",
+    "linux/ppc64",
+    "linux/ppc64le",
+    "linux/s390x",
+    "nacl/386",
+    "nacl/amd64p32",
+    "nacl/arm",
+    "netbsd/386",
+    "netbsd/amd64",
+    "netbsd/arm",
+    "openbsd/386",
+    "openbsd/amd64",
+    "openbsd/arm",
+    "plan9/386",
+    "plan9/amd64",
+    "plan9/arm",
+    "solaris/amd64",
+    "windows/386",
+    "windows/amd64",
+    "windows/arm",
 }
 
 // GOOS/GOARCH
@@ -222,11 +232,11 @@ func main() {
 			}
 			cmd = Command{Cmd: exec_path, Env: envs, Args: cmd_args, Timeout: tm_exec}
 			if !*sim_flag {
-				cmd_output, err := exec_command(cmd, *dbg_flag)
+	            cmd_output, err := exec_command(cmd, *dbg_flag)
 				if err != nil {
 					log.Println(err)
 					os.Exit(1)
-				}
+                }
 				fmt.Printf("\n%s", string(cmd_output.Output))
 			} else {
 				fmt.Printf("%v Cmd: %s %s %s\n", c, cmd.Env, cmd.Cmd, cmd.Args)
@@ -344,9 +354,8 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	if dbg {
 		fmt.Printf("Commandline: %s\n\n", cmd.Cmd)
 		fmt.Printf("Arguments: %s\n\n", args)
-		fmt.Printf("Environment: %s\n\n", env)
+		fmt.Printf("Env variables: %s\n\n", env)
 	}
-	comm.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	comm_out, err := comm.StdoutPipe()
 	comm_stderr, err := comm.StderrPipe()
 	err = comm.Start()
@@ -362,10 +371,6 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 		StdOutput:    comm_out_std,
 		StdErrOutput: comm_std_err,
 		Proc:         comm.Process}
-	pgid, err := syscall.Getpgid(comm.Process.Pid)
-	if err == nil {
-		syscall.Kill(-pgid, 15)
-	}
 	comm.Wait()
 	return eco, nil
 }
