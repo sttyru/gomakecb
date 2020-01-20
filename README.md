@@ -1,3 +1,3 @@
 # gomakecb
 
-Go Makefile Crossplatform Generator.
+Go Make Crossplatform Builder.
