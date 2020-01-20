@@ -3,8 +3,5 @@
 bin/*
 testing/*
 gomakecb
-exec2
-exec2.go
-Makefile
 example/bin/*
 

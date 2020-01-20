@@ -7,15 +7,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/mattn/go-shellwords"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 	"regexp"
+	"strings"
 	"syscall"
 	"time"
-	"github.com/mattn/go-shellwords"
 )
 
 // K/V list of GOOS/GOARCH
@@ -81,9 +81,9 @@ type Exec_Command_Output struct {
 var Usage = func() {
 	fmt.Printf("Usage of %s:\n", os.Args[0])
 	flag.PrintDefaults()
-    fmt.Printf("\nExamples:\n")
-    fmt.Printf(`%s -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" %s`, os.Args[0], "\n")
-    fmt.Printf(`%s -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go" %s`, os.Args[0], "\n")
+	fmt.Printf("\nExamples:\n")
+	fmt.Printf(`%s -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" %s`, os.Args[0], "\n")
+	fmt.Printf(`%s -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go" %s`, os.Args[0], "\n")
 }
 
 type void struct{}
@@ -93,9 +93,9 @@ func main() {
 	var err error
 	var cmd_params string
 	var cmd Command
-    flag.Usage = Usage
+	flag.Usage = Usage
 	oa_flag := flag.String("osarch", "linux/amd64", "Set GOOS/GOARCH. Use 'all' for build for all OS/ARCHs.")
-    ls_flag := flag.Bool("list", false, "Print the list of supported GOOS/GOARCH.")
+	ls_flag := flag.Bool("list", false, "Print the list of supported GOOS/GOARCH.")
 	bt_flag := flag.String("t", "", "Build tool: 'make' | 'go'.")
 	bm_flag := flag.String("m", "build", "Build mode (e.g. 'build' or 'clear').")
 	mf_flag := flag.String("f", "", "Path to Makefile (only if -t 'make').")
@@ -105,22 +105,22 @@ func main() {
 	dbg_flag := flag.Bool("d", false, "Debug output.")
 	sim_flag := flag.Bool("s", false, "Perform a simulate mode.")
 	flag.Parse()
-    /*
-    // If empty
-    if flag.NFlag() < 1 {
-		flag.Usage()
-        os.Exit(1)
+	/*
+	    // If empty
+	    if flag.NFlag() < 1 {
+			flag.Usage()
+	        os.Exit(1)
+		}
+	*/
+	// If 'ls_flag'
+	if *ls_flag {
+		fmt.Printf("- List of supported GOOS/GOARCH:\n")
+		for _, oa := range os_archs {
+			fmt.Printf("%s\n", oa)
+		}
+		fmt.Printf("- Total: %v\n", len(os_archs))
+		os.Exit(0)
 	}
-    */
-    // If 'ls_flag' 
-    if(*ls_flag){
-        fmt.Printf("- List of supported GOOS/GOARCH:\n")
-        for _, oa := range os_archs {
-            fmt.Printf("%s\n", oa)
-        }
-        fmt.Printf("- Total: %v\n", len(os_archs))
-        os.Exit(0)
-    }
 	// Buildtool
 	switch *bt_flag {
 	// Make
@@ -217,7 +217,7 @@ func main() {
 			if *p_flag != "" {
 				cmd_args = fmt.Sprintf("%s %s", *bm_flag, string(prs_args))
 			} else {
-				log.Println("Additional parameters are required (see '-p' switch).");
+				log.Println("Additional parameters are required (see '-p' switch).")
 				os.Exit(1)
 			}
 			cmd = Command{Cmd: exec_path, Env: envs, Args: cmd_args, Timeout: tm_exec}
@@ -269,15 +269,15 @@ func trim_string_before_s(s string, x string) (r string) {
 
 // Parse ARCH/OS
 func get_arch_os(s string) (ret []GoosArch, err error) {
-    if(s == "all"){
-	    for _, e := range os_archs {
-		    arch := fmt.Sprintf("%s", trim_string_before_s(e, "/"))
-		    osv := fmt.Sprintf("%s", trim_string_after_s(e, "/"))
-		    archos := GoosArch{Arch: arch, Os: osv}
-		    ret = append(ret, archos)
-        }
-        return ret, nil
-    }
+	if s == "all" {
+		for _, e := range os_archs {
+			arch := fmt.Sprintf("%s", trim_string_before_s(e, "/"))
+			osv := fmt.Sprintf("%s", trim_string_after_s(e, "/"))
+			archos := GoosArch{Arch: arch, Os: osv}
+			ret = append(ret, archos)
+		}
+		return ret, nil
+	}
 	archs := strings.Split(s, ",")
 	for _, e := range os_archs {
 		for _, ao := range archs {
@@ -287,17 +287,17 @@ func get_arch_os(s string) (ret []GoosArch, err error) {
 				archos := GoosArch{Arch: arch, Os: osv}
 				ret = append(ret, archos)
 			}
-        }
+		}
 	}
-    w_os_archs := missing(os_archs,archs)
-    if(len(w_os_archs) != 0){
-        for _, w := range w_os_archs {
-            log.Printf("Pair GOOS/GOARCH '%s' is an invalid and will be ignored. \n", w)
-        }
-    }
-    // If ret is an empty...
+	w_os_archs := missing(os_archs, archs)
+	if len(w_os_archs) != 0 {
+		for _, w := range w_os_archs {
+			log.Printf("Pair GOOS/GOARCH '%s' is an invalid and will be ignored. \n", w)
+		}
+	}
+	// If ret is an empty...
 	if len(ret) == 0 {
-        return nil, errors.New("No valid pair GOOS/GOARCH were found.")
+		return nil, errors.New("No valid pair GOOS/GOARCH were found.")
 	}
 	return ret, nil
 }
@@ -305,20 +305,20 @@ func get_arch_os(s string) (ret []GoosArch, err error) {
 // Missing compares two slices and returns slice of differences
 // copied from: https://stackoverflow.com/questions/57446978/comparing-two-slices-for-missing-element
 func missing(a, b []string) []string {
-    // create map with length of the 'a' slice
-    ma := make(map[string]void, len(a))
-    diffs := []string{}
-    // Convert first slice to map with empty struct (0 bytes)
-    for _, ka := range a {
-        ma[ka] = void{}
-    }
-    // find missing values in a
-    for _, kb := range b {
-        if _, ok := ma[kb]; !ok {
-            diffs = append(diffs, kb)
-        }
-    }
-    return diffs
+	// create map with length of the 'a' slice
+	ma := make(map[string]void, len(a))
+	diffs := []string{}
+	// Convert first slice to map with empty struct (0 bytes)
+	for _, ka := range a {
+		ma[ka] = void{}
+	}
+	// find missing values in a
+	for _, kb := range b {
+		if _, ok := ma[kb]; !ok {
+			diffs = append(diffs, kb)
+		}
+	}
+	return diffs
 }
 
 // Exec command
@@ -335,7 +335,7 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	env := os.Environ()
 	// 'make' is a VERY sensitive for an empty environment variables
 	for _, e := range envs {
-		if(e != ""){
+		if e != "" {
 			env = append(env, e)
 		}
 	}
