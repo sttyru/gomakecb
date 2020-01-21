@@ -8,6 +8,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/CrowdSurge/banner"
 	"github.com/mattn/go-shellwords"
 	"io/ioutil"
 	"log"
@@ -15,54 +16,62 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-	// "syscall"
 	"time"
 )
 
 // K/V list of GOOS/GOARCH
 var os_archs = []string{
-    "aix/ppc64",
-    "android/386",
-    "android/amd64",
-    "android/arm",
-    "android/arm64",
-    "darwin/386",
-    "darwin/amd64",
-    "darwin/arm",
-    "darwin/arm64",
-    "dragonfly/amd64",
-    "freebsd/386",
-    "freebsd/amd64",
-    "freebsd/arm",
-    "js/wasm",
-    "linux/386",
-    "linux/amd64",
-    "linux/arm",
-    "linux/arm64",
-    "linux/mips",
-    "linux/mips64",
-    "linux/mips64le",
-    "linux/mipsle",
-    "linux/ppc64",
-    "linux/ppc64le",
-    "linux/s390x",
-    "nacl/386",
-    "nacl/amd64p32",
-    "nacl/arm",
-    "netbsd/386",
-    "netbsd/amd64",
-    "netbsd/arm",
-    "openbsd/386",
-    "openbsd/amd64",
-    "openbsd/arm",
-    "plan9/386",
-    "plan9/amd64",
-    "plan9/arm",
-    "solaris/amd64",
-    "windows/386",
-    "windows/amd64",
-    "windows/arm",
+	"aix/ppc64",
+	"android/386",
+	"android/amd64",
+	"android/arm",
+	"android/arm64",
+	"darwin/386",
+	"darwin/amd64",
+	"darwin/arm",
+	"darwin/arm64",
+	"dragonfly/amd64",
+	"freebsd/386",
+	"freebsd/amd64",
+	"freebsd/arm",
+	"js/wasm",
+	"linux/386",
+	"linux/amd64",
+	"linux/arm",
+	"linux/arm64",
+	"linux/mips",
+	"linux/mips64",
+	"linux/mips64le",
+	"linux/mipsle",
+	"linux/ppc64",
+	"linux/ppc64le",
+	"linux/s390x",
+	"nacl/386",
+	"nacl/amd64p32",
+	"nacl/arm",
+	"netbsd/386",
+	"netbsd/amd64",
+	"netbsd/arm",
+	"openbsd/386",
+	"openbsd/amd64",
+	"openbsd/arm",
+	"plan9/386",
+	"plan9/amd64",
+	"plan9/arm",
+	"solaris/amd64",
+	"windows/386",
+	"windows/amd64",
+	"windows/arm",
 }
+
+// version
+var (
+	version   string
+	branch    string
+	buildnum  string
+	builddate string
+	buildtime string
+)
 
 // GOOS/GOARCH
 type GoosArch struct {
@@ -74,7 +83,7 @@ type GoosArch struct {
 type Command struct {
 	Cmd     string        `json:"cmd"`
 	Env     string        `json:"env"`
-    Env_ow  bool          `json:"env_ow"`
+	Env_ow  bool          `json:"env_ow"`
 	Args    string        `json:"args"`
 	Timeout time.Duration `json:"timeout"`
 }
@@ -112,18 +121,17 @@ func main() {
 	mf_flag := flag.String("f", "", "Path to Makefile (only if -t 'make').")
 	p_flag := flag.String("p", "", "Another parameters for 'make'/'go' which should be passed.")
 	env_flag := flag.String("e", "", "Environment variables.")
-    env_oflag := flag.Bool("eow", false, "Overwriting of environment variables.")
+	env_oflag := flag.Bool("eow", false, "Overwriting of environment variables.")
 	tm_flag := flag.String("timeout", "24h", "Maximum timeout execution of 'make'/'go'.")
 	dbg_flag := flag.Bool("d", false, "Debug output.")
 	sim_flag := flag.Bool("s", false, "Perform a simulate mode.")
+	ver_flag := flag.Bool("v", false, "Show version.")
 	flag.Parse()
-	/*
-	    // If empty
-	    if flag.NFlag() < 1 {
-			flag.Usage()
-	        os.Exit(1)
-		}
-	*/
+	// If empty
+	if flag.NFlag() < 1 {
+		flag.Usage()
+		os.Exit(1)
+	}
 	// If 'ls_flag'
 	if *ls_flag {
 		fmt.Printf("- List of supported GOOS/GOARCH:\n")
@@ -132,6 +140,12 @@ func main() {
 		}
 		fmt.Printf("- Total: %v\n", len(os_archs))
 		os.Exit(0)
+	}
+	// Show version.
+	if *ver_flag {
+		banner.Print("wh")
+		fmt.Printf("\nGo Make Crossplatform Builder.\n\n")
+		fmt.Printf("Version: %s, branch: %s, build number: %s, build date: %s, build time: %s\n\n", version, branch, buildnum, builddate, buildtime)
 	}
 	// Buildtool
 	switch *bt_flag {
@@ -204,7 +218,7 @@ func main() {
 			} else {
 				cmd_args = fmt.Sprintf("%s %s GOARCH=%s GOOS=%s", *bm_flag, cmd_params, v.Arch, v.Os)
 			}
-            cmd = Command{Cmd: exec_path, Env: *env_flag, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
+			cmd = Command{Cmd: exec_path, Env: *env_flag, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
 			if !*sim_flag {
 				cmd_output, err := exec_command(cmd, *dbg_flag)
 				if err != nil {
@@ -232,13 +246,13 @@ func main() {
 				log.Println("Additional parameters are required (see '-p' switch).")
 				os.Exit(1)
 			}
-            cmd = Command{Cmd: exec_path, Env: envs, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
+			cmd = Command{Cmd: exec_path, Env: envs, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
 			if !*sim_flag {
-	            cmd_output, err := exec_command(cmd, *dbg_flag)
+				cmd_output, err := exec_command(cmd, *dbg_flag)
 				if err != nil {
 					log.Println(err)
 					os.Exit(1)
-                }
+				}
 				fmt.Printf("\n%s", string(cmd_output.Output))
 			} else {
 				fmt.Printf("%v Cmd: %s %s %s\n", c, cmd.Env, cmd.Cmd, cmd.Args)
@@ -337,7 +351,7 @@ func missing(a, b []string) []string {
 func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cmd.Timeout)
 	defer cancel()
-    var env []string
+	var env []string
 	var eco Exec_Command_Output
 	args, _ := shellwords.Parse(cmd.Args)
 	envs, _ := shellwords.Parse(cmd.Env)
@@ -345,9 +359,9 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	// envs := strings.Split(cmd.Env, " ")
 	_ = envs
 	comm := exec.CommandContext(ctx, cmd.Cmd, args...)
-    if(!cmd.Env_ow){
-        env = os.Environ()
-    }
+	if !cmd.Env_ow {
+		env = os.Environ()
+	}
 	// 'make' is a VERY sensitive for an empty environment variables
 	for _, e := range envs {
 		if e != "" {
