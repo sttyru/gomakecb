@@ -143,7 +143,7 @@ func main() {
 	}
 	// Show version.
 	if *ver_flag {
-		banner.Print("wh")
+		banner.Print("gomakecb")
 		fmt.Printf("\nGo Make Crossplatform Builder.\n\n")
 		fmt.Printf("Version: %s, branch: %s, build number: %s, build date: %s, build time: %s\n\n", version, branch, buildnum, builddate, buildtime)
 		os.Exit(0)

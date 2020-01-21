@@ -41,10 +41,12 @@ Another scenario implies to overwrite ща environment variables inherited for a
 ## Build-in help
 
 ```
-Usage of ./gomakecb:
+Usage of bin/linux/amd64/gomakecb:
   -d    Debug output.
   -e string
         Environment variables.
+  -eow
+        Overwriting of environment variables.
   -f string
         Path to Makefile (only if -t 'make').
   -list
@@ -60,10 +62,57 @@ Usage of ./gomakecb:
         Build tool: 'make' | 'go'.
   -timeout string
         Maximum timeout execution of 'make'/'go'. (default "24h")
+  -v    Show version.
 
 Examples:
-./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
-./gomakecb -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
+bin/linux/amd64/gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
+bin/linux/amd64/gomakecb -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
 ```
 
+## Supported OS/ARCHs
 
+```
+- List of supported GOOS/GOARCH:
+aix/ppc64
+android/386
+android/amd64
+android/arm
+android/arm64
+darwin/386
+darwin/amd64
+darwin/arm
+darwin/arm64
+dragonfly/amd64
+freebsd/386
+freebsd/amd64
+freebsd/arm
+js/wasm
+linux/386
+linux/amd64
+linux/arm
+linux/arm64
+linux/mips
+linux/mips64
+linux/mips64le
+linux/mipsle
+linux/ppc64
+linux/ppc64le
+linux/s390x
+nacl/386
+nacl/amd64p32
+nacl/arm
+netbsd/386
+netbsd/amd64
+netbsd/arm
+openbsd/386
+openbsd/amd64
+openbsd/arm
+plan9/386
+plan9/amd64
+plan9/arm
+solaris/amd64
+windows/386
+windows/amd64
+windows/arm
+- Total: 41
+```
