@@ -34,7 +34,9 @@ Another scenario implies to overwrite ща environment variables inherited for a
 ./gomakecb -t "go" -osarch="all" -m="build" -p="-ldflags='-s -w -X main.version=0.1 -X main.builddate=`date -u +%Y%m%d.%H%M%S`' -o bin/\$GOOS/\$GOARCH/app -v app.go" -e="HOME=/tmp,GOCACHE=/tmp,PATH=/sbin:/usr/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin" -eow -d
 ```
 Сommandline arguments aren't require a detailed description, unlike an environment variables. For pass them just set  the `-p` switch and assign required values. E.g.:
+```
 ./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -p="TEST=true"
+```
 
 ## Build-in help
 
