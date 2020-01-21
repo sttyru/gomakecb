@@ -146,6 +146,7 @@ func main() {
 		banner.Print("wh")
 		fmt.Printf("\nGo Make Crossplatform Builder.\n\n")
 		fmt.Printf("Version: %s, branch: %s, build number: %s, build date: %s, build time: %s\n\n", version, branch, buildnum, builddate, buildtime)
+		os.Exit(0)
 	}
 	// Buildtool
 	switch *bt_flag {
