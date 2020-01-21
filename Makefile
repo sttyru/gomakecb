@@ -1,6 +1,6 @@
 export GOOS
 export GOARCH
-MAJOR_VERSION=1.0
+MAJOR_VERSION=1.0.1
 BUILDNUM=21
 BRANCH=prod
 GOCMD=go
@@ -14,6 +14,13 @@ LDFLAGS=-ldflags="-s -w -X main.version=$(MAJOR_VERSION) -X main.branch=$(BRANCH
 all: check test build
 build: 
 	$(GOBUILD) $(LDFLAGS) -o bin/$(GOOS)/$(GOARCH)/$(BINARY_NAME) -v $(PROJECT_FILES) 
+ifeq ($(COMPRESS),upx)
+ifeq (, $(shell which upx))
+	$(error "No upx in $(PATH), consider install upx.")
+else 
+	$(shell which upx) bin/$(GOOS)/$(GOARCH)/$(BINARY_NAME)
+endif
+endif
 test: 
 	$(GOTEST) -v $(PROJECT_FILES)
 clean: 
