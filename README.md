@@ -23,3 +23,45 @@ and run:
 ./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
 ```
 
+## Environment variables, commandline arguments
+
+In some cases, may be necessary to passing a special environment variables when calling 'go' or 'make' commands. This may be required when a compilation process will be done to a remote host. To pass of an additional variables for 'make' or 'go' should be using commandline switch '-e'. E.g.:
+```
+./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -e="BUILDMODE=prod"
+```
+Another scenario implies to overwrite ща environment variables inherited for a user. For this case has been implemented the switch '-eow' (overwrite of environments variables). If `-eow` engaged, all environment variables will be replacted to values which were passed via '-e' switch. E.g.:
+```
+./gomakecb -t "go" -osarch="all" -m="build" -p="-ldflags='-s -w -X main.version=0.1 -X main.builddate=`date -u +%Y%m%d.%H%M%S`' -o bin/\$GOOS/\$GOARCH/app -v app.go" -e="HOME=/tmp,GOCACHE=/tmp,PATH=/sbin:/usr/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin" -eow -d
+```
+Сommandline arguments aren't require a detailed description, unlike an environment variables. For pass them just set  the `-p` switch and assign required values. E.g.:
+./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -p="TEST=true"
+
+## Build-in help
+
+```
+Usage of ./gomakecb:
+  -d    Debug output.
+  -e string
+        Environment variables.
+  -f string
+        Path to Makefile (only if -t 'make').
+  -list
+        Print the list of supported GOOS/GOARCH.
+  -m string
+        Build mode (e.g. 'build' or 'clear'). (default "build")
+  -osarch string
+        Set GOOS/GOARCH. Use 'all' for build for all OS/ARCHs. (default "linux/amd64")
+  -p string
+        Another parameters for 'make'/'go' which should be passed.
+  -s    Perform a simulate mode.
+  -t string
+        Build tool: 'make' | 'go'.
+  -timeout string
+        Maximum timeout execution of 'make'/'go'. (default "24h")
+
+Examples:
+./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
+./gomakecb -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
+```
+
+

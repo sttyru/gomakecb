@@ -74,6 +74,7 @@ type GoosArch struct {
 type Command struct {
 	Cmd     string        `json:"cmd"`
 	Env     string        `json:"env"`
+    Env_ow  bool          `json:"env_ow"`
 	Args    string        `json:"args"`
 	Timeout time.Duration `json:"timeout"`
 }
@@ -111,6 +112,7 @@ func main() {
 	mf_flag := flag.String("f", "", "Path to Makefile (only if -t 'make').")
 	p_flag := flag.String("p", "", "Another parameters for 'make'/'go' which should be passed.")
 	env_flag := flag.String("e", "", "Environment variables.")
+    env_oflag := flag.Bool("eow", false, "Overwriting of environment variables.")
 	tm_flag := flag.String("timeout", "24h", "Maximum timeout execution of 'make'/'go'.")
 	dbg_flag := flag.Bool("d", false, "Debug output.")
 	sim_flag := flag.Bool("s", false, "Perform a simulate mode.")
@@ -202,7 +204,7 @@ func main() {
 			} else {
 				cmd_args = fmt.Sprintf("%s %s GOARCH=%s GOOS=%s", *bm_flag, cmd_params, v.Arch, v.Os)
 			}
-			cmd = Command{Cmd: exec_path, Env: *env_flag, Args: cmd_args, Timeout: tm_exec}
+            cmd = Command{Cmd: exec_path, Env: *env_flag, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
 			if !*sim_flag {
 				cmd_output, err := exec_command(cmd, *dbg_flag)
 				if err != nil {
@@ -230,7 +232,7 @@ func main() {
 				log.Println("Additional parameters are required (see '-p' switch).")
 				os.Exit(1)
 			}
-			cmd = Command{Cmd: exec_path, Env: envs, Args: cmd_args, Timeout: tm_exec}
+            cmd = Command{Cmd: exec_path, Env: envs, Env_ow: *env_oflag, Args: cmd_args, Timeout: tm_exec}
 			if !*sim_flag {
 	            cmd_output, err := exec_command(cmd, *dbg_flag)
 				if err != nil {
@@ -335,6 +337,7 @@ func missing(a, b []string) []string {
 func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cmd.Timeout)
 	defer cancel()
+    var env []string
 	var eco Exec_Command_Output
 	args, _ := shellwords.Parse(cmd.Args)
 	envs, _ := shellwords.Parse(cmd.Env)
@@ -342,7 +345,9 @@ func exec_command(cmd Command, dbg bool) (res Exec_Command_Output, err error) {
 	// envs := strings.Split(cmd.Env, " ")
 	_ = envs
 	comm := exec.CommandContext(ctx, cmd.Cmd, args...)
-	env := os.Environ()
+    if(!cmd.Env_ow){
+        env = os.Environ()
+    }
 	// 'make' is a VERY sensitive for an empty environment variables
 	for _, e := range envs {
 		if e != "" {
