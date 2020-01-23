@@ -14,7 +14,8 @@ In a simplest case, when a build process imply only a call `go build...`,  using
 `which gomakecb` -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
 ```
 
-where `app` is a name of the output file and `app.go` is the name of source file. After the process of building will be finish, binaries will be stored in a directory tree (in `bin/`).  That's all :)
+where `app` is the name of the output file and `app.go` is the name of source file. After the process of building will be finish, binaries will be stored in a directory tree in `bin/`.  That's all :)
+
 When the process of building is a more complicated and `make` utility is using, the step, after an installation, should including to edit `Makefile`. That's is an easy. Just add two lines (see below):
 
 ```
@@ -30,20 +31,20 @@ and run:
 
 ## Environment variables, commandline arguments
 
-In some cases, may be necessary to passing a special environment variables when calling 'go' or 'make' commands. This may be required when a compilation process will be done to a remote host. To pass of an additional variables for 'make' or 'go' should be using commandline switch '-e'. E.g.:
+In some cases, may be necessary to pass a special environment variables when calling `go` or `make` commands. This may be required when a compilation process will be done to a remote host. To pass of an additional variables for `make` or `go` should be using commandline switch `-e`. E.g.:
 
 ```
-./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -e="BUILDMODE=prod"
+`which gomakecb` -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -e="BUILDMODE=prod"
 ```
-Another scenario implies to overwrite ща environment variables inherited for a user. For this case has been implemented the switch '-eow' (overwrite of environments variables). If `-eow` engaged, all environment variables will be replacted to values which were passed via '-e' switch. E.g.:
+Another scenario implies to overwrite an environment variables inherited for a user. For this case has been implemented the switch `-eow` (overwrite of environments variables). If `-eow` engaged, all environment variables will be replacted to values which were passed via `-e` switch. E.g.:
 
 ```
-./gomakecb -t "go" -osarch="all" -m="build" -p="-ldflags='-s -w -X main.version=0.1 -X main.builddate=`date -u +%Y%m%d.%H%M%S`' -o bin/\$GOOS/\$GOARCH/app -v app.go" -e="HOME=/tmp,GOCACHE=/tmp,PATH=/sbin:/usr/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin" -eow -d
+`which gomakecb` -t "go" -osarch="all" -m="build" -p="-ldflags='-s -w -X main.version=0.1 -X main.builddate=`date -u +%Y%m%d.%H%M%S`' -o bin/\$GOOS/\$GOARCH/app -v app.go" -e="HOME=/tmp,GOCACHE=/tmp,PATH=/sbin:/usr/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/go/bin" -eow -d
 ```
 Сommandline arguments aren't require a detailed description, unlike an environment variables. For pass them just set  the `-p` switch and assign required values. E.g.:
 
 ```
-./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -p="TEST=true"
+`which gomakecb` -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64" -p="TEST=true"
 ```
 
 ## Build-in help
@@ -73,8 +74,8 @@ Usage of bin/linux/amd64/gomakecb:
   -v    Show version.
 
 Examples:
-bin/linux/amd64/gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
-bin/linux/amd64/gomakecb -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
+./gomakecb -t "make" -f="Makefile" -m="build" -osarch="linux/amd64,windows/amd64"
+./gomakecb -t "go" -m="build" -osarch="linux/amd64,windows/amd64" -p="-o bin/\$GOOS/\$GOARCH/app -v app.go"
 ```
 
 ## Supported OS/ARCHs
